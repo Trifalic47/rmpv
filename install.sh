@@ -4,17 +4,22 @@ set -e
 echo "== rmpv installer =="
 
 # ─────────────────────────────
-# auto sudo handling
+# detect repo root correctly
+# ─────────────────────────────
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "[i] Repo: $REPO"
+
+# ─────────────────────────────
+# sudo only when needed
 # ─────────────────────────────
 if [[ $EUID -ne 0 ]]; then
     echo "[i] Re-running with sudo..."
     exec sudo bash "$0" "$@"
 fi
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 # ─────────────────────────────
-# dependency check
+# dependencies
 # ─────────────────────────────
 for cmd in mpv yt-dlp mpc rmpc; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -29,7 +34,7 @@ done
 read -rp "Music directory (default ~/Music): " MUSIC_DIR
 MUSIC_DIR="${MUSIC_DIR:-$HOME/Music}"
 
-read -rp "MPD socket path (default ~/.config/mpd/socket): " MPD_SOCKET
+read -rp "MPD socket (default ~/.config/mpd/socket): " MPD_SOCKET
 MPD_SOCKET="${MPD_SOCKET:-$HOME/.config/mpd/socket}"
 
 # ─────────────────────────────
@@ -54,26 +59,18 @@ install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
 install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
 
 # ─────────────────────────────
-# install dots (THIS FIXES YOUR QUESTION)
+# install dotfiles
 # ─────────────────────────────
-echo "[+] Installing dotfiles..."
+echo "[+] Installing configs..."
 
 mkdir -p "$HOME/.config"
 
 cp -r "$REPO/dots/mpv"  "$HOME/.config/mpv"
 cp -r "$REPO/dots/rmpc" "$HOME/.config/rmpc"
 
-echo "[+] MPV + Rmpc configs installed"
-
-# ─────────────────────────────
-# permissions fix
-# ─────────────────────────────
-chmod +x /usr/local/bin/rmpv*
-chmod +x "$HOME/.config/rmpc/"*.sh 2>/dev/null || true
-
-echo "[+] Installation complete!"
+echo "[+] Done"
 echo ""
 echo "Run:"
-echo "   rmpv open"
-echo "   rmpv play <url/file>"
-echo "   rmpv search <query>"
+echo "  rmpv open"
+echo "  rmpv play <url/file>"
+echo "  rmpv search <query>"
