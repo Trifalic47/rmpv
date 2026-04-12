@@ -1,25 +1,7 @@
-# #!/bin/bash
-#
-# URL="$1"
-# [[ -z "$URL" ]] && exit 0
-#
-# exec mpv \
-#     --no-terminal \
-#     --force-window=yes \
-#     --vo=gpu-next \
-#     --gpu-api=vulkan \
-#     --hwdec=auto-safe \
-#     --cache=yes \
-#     --cache-secs=2 \
-#     --demuxer-readahead-secs=2 \
-#     --ytdl-format="bv*[height<=720][vcodec!=av01]+ba/b[height<=720]" \
-#     "$URL"
-
-#!/bin/bash
 
 INPUT="$*"
 
-MPD_SOCKET="/home/tanishq/.config/mpd/socket"
+MPD_SOCKET="${MPD_SOCKET:-$HOME/.config/mpd/socket}"
 
 # 1. Try extract URL
 URL=$(echo "$INPUT" | grep -oE 'https?://[^ ]+' | head -n1)
@@ -28,11 +10,13 @@ if [[ -n "$URL" ]]; then
     exec nohup mpv \
         --no-terminal \
         --force-window=yes \
-        --ytdl-format="best[height<=720]" \
-        "$URL" >/dev/null 2>&1 &
-    exit 0
+        --ytdl-format="bestvideo[height<=720][vcodec!=av01]+bestaudio/best[height<=720]" \
+        --cache=yes \
+        --cache-secs=2 \
+        --demuxer-readahead-secs=2 \
+        --hwdec=auto-safe \
+        "$URL" >/dev/null 2>&1 &    exit 0
 fi
-
 # 2. Ask MPD for current song path (IMPORTANT PART)
 FILE=$(mpc --host="$MPD_SOCKET" current -f "%file%")
 

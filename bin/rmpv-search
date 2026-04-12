@@ -1,4 +1,5 @@
 #!/bin/bash
 
 QUERY="$*"
-yt-dlp "ytsearch1:$QUERY" --print "https://www.youtube.com/watch?v=%(id)s"
+
+exec ~/.config/rmpc/search_yt.sh "$QUERY"
