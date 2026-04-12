@@ -8,16 +8,22 @@ Built for fast media playback, YouTube streaming, and CLI control.
 
 ## ⚡ Preview
 
-### UI Preview 1
+### 🎬 CLI Workflow
+
+![cli](images/cli.gif)
+
+---
+
+### 🖥️ TUI (rmpc Interface)
+
+![tui](images/tui.gif)
+
+---
+
+### 📸 UI Screenshots
 
 ![preview1](images/preview1.png)
-
-### UI Preview 2
-
 ![preview2](images/preview2.png)
-
-### UI Preview 3
-
 ![preview3](images/preview3.png)
 
 ---
@@ -26,27 +32,25 @@ Built for fast media playback, YouTube streaming, and CLI control.
 
 * 🎧 Play local music instantly
 * 📺 Stream YouTube videos via mpv
-* 🔍 Search and play from CLI
-* 🎛️ Control playback using rmpc
-* 💾 Save configs automatically
-* ⚡ Minimal + fast setup
+* 🔍 Search and play directly from CLI
+* 🎛️ Full playback control via rmpc
+* 💾 Automatic config setup
+* ⚡ Minimal + fast
 
 ---
 
 ## 📦 Dependencies
 
-Make sure these are installed before running:
-
 ### Core
 
 * `mpv` → media player
 * `yt-dlp` → YouTube/media extractor
-* `mpc` → MPD client control
-* `rmpc` → CLI controller (required for UI/control layer)
+* `mpc` → MPD client
+* `rmpc` → TUI controller
 
 ---
 
-### Install dependencies (Arch Linux)
+### Install (Arch Linux)
 
 ```bash
 sudo pacman -S mpv yt-dlp mpc mpd
@@ -62,25 +66,9 @@ cargo install rmpc
 
 ## 🛠️ Installation
 
-### 1. Clone the repo
-
-```bash
-git clone git@github.com:Trifalic47/rmpv.git
-cd rmpv
-```
-
-OR
-
 ```bash
 git clone https://github.com/Trifalic47/rmpv.git
 cd rmpv
-```
-
----
-
-### 2. Run installer
-
-```bash
 bash install.sh
 ```
 
@@ -88,22 +76,102 @@ bash install.sh
 
 ## 🎮 Usage
 
-### Open player
-
 ```bash
 rmpv open
-```
-
-### Play media
-
-```bash
-rmpv play <url or file>
-```
-
-### Search YouTube
-
-```bash
+rmpv play <url/file>
 rmpv search "song name"
+```
+
+---
+
+## ⌨️ Keybindings
+
+### 🎵 Playback
+
+* `p` → Play/Pause
+* `s` → Stop
+* `>` / `<` → Next / Previous
+* `f` / `b` → Seek
+
+---
+
+### 🔊 Volume
+
+* `.` → Volume up
+* `,` → Volume down
+
+---
+
+### 🔁 Modes
+
+* `z` → Repeat
+* `x` → Shuffle
+* `c` → Consume
+* `v` → Single
+
+---
+
+### 🧭 Navigation
+
+* `Tab` → Next tab
+* `Shift + Tab` → Previous tab
+
+---
+
+### 🧠 App
+
+* `q` → Quit
+* `?` → Help
+* `:` → Command mode
+
+---
+
+### 📺 YouTube
+
+* `S` → Search YouTube
+* `V` → Open video for current song
+
+---
+
+### 💾 MPV
+
+* `Shift + S` → Download current media
+
+Saved to:
+
+```
+~/Music/rmpc
+```
+
+---
+
+## ⚙️ Config
+
+```
+~/.config/rmpv/config
+```
+
+Example:
+
+```
+MUSIC_DIR=~/Music
+MPD_SOCKET=~/.config/mpd/socket
+```
+
+---
+
+## 🧪 Troubleshooting
+
+### Slow YouTube loading
+
+```bash
+yt-dlp --version
+```
+
+### rmpc not working
+
+```bash
+mpd --no-daemon
 ```
 
 ---
@@ -112,167 +180,16 @@ rmpv search "song name"
 
 ```
 rmpv/
-├── bin/                # CLI binaries
-├── dots/              # mpv + rmpc configs
-├── images/            # previews
-├── scripts/           # setup scripts
-├── install.sh        # installer
+├── bin/
+├── dots/
+├── images/
+├── scripts/
+├── install.sh
 └── README.md
 ```
 
 ---
 
-## ⚙️ Config Location
-
-After installation:
-
-```
-~/.config/rmpv/config
-```
-
-Example:
-
-```
-MUSIC_DIR=~/Music
-MPD_SOCKET=~/.config/mpd/socket
-```
-
----
-
-## 🧠 Requirements Notes
-
-* MPD must be running if using rmpc features
-* yt-dlp required for YouTube playback
-* mpv must support youtube-dl backend (yt-dlp)
-
----
----
-
-## ⌨️ Keybindings
-
-### 🎵 Global Controls (rmpc)
-
-#### ▶ Playback
-
-* `p` → Toggle play/pause
-* `s` → Stop playback
-* `>` → Next track
-* `<` → Previous track
-* `f` → Seek forward
-* `b` → Seek backward
-
----
-
-#### 🔊 Volume
-
-* `.` → Volume up
-* `,` → Volume down
-
----
-
-#### 🔁 Modes
-
-* `z` → Toggle repeat
-* `x` → Toggle random (shuffle)
-* `c` → Toggle consume
-* `v` → Toggle single
-
----
-
-#### 🧭 Navigation
-
-* `Tab` → Next tab
-* `Shift + Tab` → Previous tab
-
----
-
-#### 🧠 App Controls
-
-* `q` → Quit
-* `?` → Show help
-* `:` → Command mode
-
----
-
-### 📺 YouTube Integration
-
-* `S` → Search and play YouTube videos
-* `V` → Open video for current song
-
-> Powered by custom scripts using `yt-dlp` + `mpv`
-
----
-
-### 💾 MPV Keybindings
-
-#### 🎧 Download current song
-
-* `Shift + S` → Download current playing media
-
-📂 Saved to:
-
-```
-~/Music/rmpc
-```
-
-> Uses custom `save_youtube.sh` script integrated with mpv
-
----
-
-## ⚙️ Config Location
-
-After installation:
-
-```
-~/.config/rmpv/config
-```
-
-Example:
-
-```
-MUSIC_DIR=~/Music
-MPD_SOCKET=~/.config/mpd/socket
-```
-
----
-
----
-## 🧪 Troubleshooting
-
-### mpv slow YouTube loading
-
-Make sure yt-dlp is installed:
-
-```bash
-yt-dlp --version
-```
-
-### rmpc not responding
-
-Ensure MPD is running:
-
-```bash
-mpd --no-daemon
-```
-
----
-
-# Install songs
-[Google Drive - Music](https://drive.google.com/drive/folders/19Yjdsd1q0D70O4Ye-Bi3FNZEF0IJCz4q?usp=drive_link)
-
-[Google Drive - Video](https://drive.google.com/drive/folders/11GDfocqTXpVkRuWPMZt4K6jz_NsIeCkh?usp=drive_link)
-
-### Keybinds
-
----
-
 ## 👨‍💻 Author
 
-* GitHub: [@Trifalic47](https://github.com/Trifalic47)
-
-Repo:
-[https://github.com/Trifalic](https://github.com/Trifalic47/rmpv)
-
-
-
-
+GitHub: https://github.com/Trifalic47
