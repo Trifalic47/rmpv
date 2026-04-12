@@ -4,13 +4,25 @@ set -euo pipefail
 echo "== rmpv installer =="
 
 # ─────────────────────────────
-# repo root
+# repo detection (SAFE FOR ALL MODES)
 # ─────────────────────────────
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO=""
+
+if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]:-}" ]]; then
+    REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    echo "[!] Cannot detect repo path from pipe mode."
+    echo "[!] DO NOT use: curl -fsSL ... | bash"
+    echo "[!] Instead:"
+    echo "    git clone https://github.com/Trifalic47/rmpv"
+    echo "    cd rmpv && bash install.sh"
+    exit 1
+fi
+
 echo "[i] Repo: $REPO"
 
 # ─────────────────────────────
-# detect real user (IMPORTANT FIX)
+# detect real user (NO ROOT BUGS)
 # ─────────────────────────────
 if [[ -n "${SUDO_USER:-}" ]]; then
     USER_HOME="$(eval echo "~$SUDO_USER")"
@@ -23,7 +35,7 @@ CONFIG_DIR="$USER_HOME/.config"
 echo "[i] User home: $USER_HOME"
 
 # ─────────────────────────────
-# dependencies check
+# dependency check
 # ─────────────────────────────
 for cmd in mpv yt-dlp mpc rmpc; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -33,7 +45,7 @@ for cmd in mpv yt-dlp mpc rmpc; do
 done
 
 # ─────────────────────────────
-# user input
+# user config input
 # ─────────────────────────────
 read -rp "Music directory (default ~/Music): " MUSIC_DIR
 MUSIC_DIR="${MUSIC_DIR:-$USER_HOME/Music}"
@@ -51,10 +63,10 @@ MUSIC_DIR=$MUSIC_DIR
 MPD_SOCKET=$MPD_SOCKET
 EOF
 
-echo "[+] Config saved at $USER_HOME/.config/rmpv/config"
+echo "[+] Config saved → $USER_HOME/.config/rmpv/config"
 
 # ─────────────────────────────
-# install binaries (root required only here)
+# install binaries (ROOT ONLY HERE)
 # ─────────────────────────────
 echo "[+] Installing binaries..."
 
@@ -63,21 +75,20 @@ sudo install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
 sudo install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
 
 # ─────────────────────────────
-# install dotfiles (USER MODE FIX)
+# install dotfiles (USER SAFE)
 # ─────────────────────────────
 echo "[+] Installing configs..."
 
 mkdir -p "$CONFIG_DIR"
 
-# clean old configs (prevents merge bugs)
 rm -rf "$CONFIG_DIR/mpv"
 rm -rf "$CONFIG_DIR/rmpc"
 
 cp -r "$REPO/dots/mpv"  "$CONFIG_DIR/mpv"
 cp -r "$REPO/dots/rmpc" "$CONFIG_DIR/rmpc"
 
-echo "[+] mpv config → $CONFIG_DIR/mpv"
-echo "[+] rmpc config → $CONFIG_DIR/rmpc"
+echo "[+] mpv → $CONFIG_DIR/mpv"
+echo "[+] rmpc → $CONFIG_DIR/rmpc"
 
 # ─────────────────────────────
 # done
