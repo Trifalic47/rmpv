@@ -80,24 +80,34 @@ set -e
 
 echo "== rmpv installer =="
 
+TMP_DIR=""
+
 # ----------------------------
-# detect repo correctly
+# detect if running via curl pipe
 # ----------------------------
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$0" ]]; then
+    REPO="$(cd "$(dirname "$0")" && pwd)"
+else
+    # curl | bash case
+    TMP_DIR="$(mktemp -d)"
+    git clone https://github.com/Trifalic47/rmpv.git "$TMP_DIR"
+    REPO="$TMP_DIR"
+fi
+
 echo "[i] Repo: $REPO"
 
 # ----------------------------
-# check dependencies
+# deps
 # ----------------------------
 for cmd in mpv yt-dlp mpc rmpc; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
+    command -v "$cmd" >/dev/null || {
         echo "[!] Missing dependency: $cmd"
         exit 1
-    fi
+    }
 done
 
 # ----------------------------
-# user input
+# config
 # ----------------------------
 read -rp "Music directory (default ~/Music): " MUSIC_DIR
 MUSIC_DIR="${MUSIC_DIR:-$HOME/Music}"
@@ -105,9 +115,6 @@ MUSIC_DIR="${MUSIC_DIR:-$HOME/Music}"
 read -rp "MPD socket (default ~/.config/mpd/socket): " MPD_SOCKET
 MPD_SOCKET="${MPD_SOCKET:-$HOME/.config/mpd/socket}"
 
-# ----------------------------
-# config file
-# ----------------------------
 mkdir -p "$HOME/.config/rmpv"
 
 cat > "$HOME/.config/rmpv/config" <<EOF
@@ -122,25 +129,20 @@ echo "[+] Config saved"
 # ----------------------------
 echo "[+] Installing binaries..."
 
-install -Dm755 "$REPO/bin/rmpv" /usr/local/bin/rmpv
-install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
-install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
+sudo install -Dm755 "$REPO/bin/rmpv" /usr/local/bin/rmpv
+sudo install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
+sudo install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
 
 # ----------------------------
-# install dots (IMPORTANT FIX)
+# install dots
 # ----------------------------
 echo "[+] Installing dotfiles..."
 
 mkdir -p "$HOME/.config/mpv"
 mkdir -p "$HOME/.config/rmpc"
 
-# copy FULL CONTENT (not folder itself mistake fix)
 cp -r "$REPO/dots/mpv/." "$HOME/.config/mpv/"
 cp -r "$REPO/dots/rmpc/." "$HOME/.config/rmpc/"
 
-echo "[+] Done successfully!"
-echo ""
-echo "Run:"
-echo "  rmpv open"
-echo "  rmpv play <url/file>"
-echo "  rmpv search <query>"
+echo "[+] Done!"
+echo "Run: rmpv open"
