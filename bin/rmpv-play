@@ -1,0 +1,23 @@
+#!/bin/bash
+
+source "$HOME/.config/rmpv/config"
+
+INPUT="$*"
+
+URL=$(echo "$INPUT" | grep -oE 'https?://[^ ]+' | head -n1)
+
+if [[ -n "$URL" ]]; then
+    exec mpv --no-terminal --ytdl-format="best[height<=720]" "$URL"
+fi
+
+FILE=$(mpc --host="$MPD_SOCKET" current -f "%file%")
+
+[[ -z "$FILE" ]] && FILE="$INPUT"
+
+FULL_PATH="$MUSIC_DIR/$FILE"
+
+if [[ -f "$FULL_PATH" ]]; then
+    exec mpv "$FULL_PATH"
+fi
+
+exec mpv "$INPUT"
