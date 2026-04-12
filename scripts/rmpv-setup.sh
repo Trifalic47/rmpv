@@ -6,7 +6,7 @@ echo "== rmpv setup =="
 CONFIG_DIR="$HOME/.config"
 SHARE_DIR="/usr/share/rmpv/dots"
 
-# Copy dotfiles
+# ── copy dotfiles ──────────────────────────────────────
 echo "[+] Installing configs..."
 rm -rf "$CONFIG_DIR/mpv"
 rm -rf "$CONFIG_DIR/rmpc"
@@ -15,7 +15,7 @@ cp -r "$SHARE_DIR/rmpc" "$CONFIG_DIR/rmpc"
 echo "[+] mpv  → $CONFIG_DIR/mpv"
 echo "[+] rmpc → $CONFIG_DIR/rmpc"
 
-# Ask for user config
+# ── user config ────────────────────────────────────────
 read -rp "Music directory (default ~/Music): " MUSIC_DIR
 MUSIC_DIR="${MUSIC_DIR:-$HOME/Music}"
 
@@ -23,10 +23,10 @@ read -rp "MPD socket (default ~/.config/mpd/socket): " MPD_SOCKET
 MPD_SOCKET="${MPD_SOCKET:-$HOME/.config/mpd/socket}"
 
 mkdir -p "$HOME/.config/rmpv"
-cat > "$HOME/.config/rmpv/config" <<CONF
+cat > "$HOME/.config/rmpv/config" <<EOF
 MUSIC_DIR=$MUSIC_DIR
 MPD_SOCKET=$MPD_SOCKET
-CONF
+EOF
 
 echo "[✓] Config saved → $HOME/.config/rmpv/config"
 echo ""
