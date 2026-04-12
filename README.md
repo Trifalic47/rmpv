@@ -167,9 +167,17 @@ mpd --no-daemon
 
 ---
 
+# Install songs
+[Google Drive - Music](https://drive.google.com/drive/folders/19Yjdsd1q0D70O4Ye-Bi3FNZEF0IJCz4q?usp=drive_link)
+[Google Drive - Video](https://drive.google.com/drive/folders/11GDfocqTXpVkRuWPMZt4K6jz_NsIeCkh?usp=drive_link)
+
+### Keybinds
+
+---
+
 ## 👨‍💻 Author
 
 * GitHub: [@Trifalic47](https://github.com/Trifalic47)
 
 Repo:
-[https://github.com/Tri](https://github.com/Trifalic47/rmpv)
+[https://github.com/Trifalic](https://github.com/Trifalic47/rmpv)
