@@ -146,7 +146,97 @@ MPD_SOCKET=~/.config/mpd/socket
 * mpv must support youtube-dl backend (yt-dlp)
 
 ---
+---
 
+## ⌨️ Keybindings
+
+### 🎵 Global Controls (rmpc)
+
+#### ▶ Playback
+
+* `p` → Toggle play/pause
+* `s` → Stop playback
+* `>` → Next track
+* `<` → Previous track
+* `f` → Seek forward
+* `b` → Seek backward
+
+---
+
+#### 🔊 Volume
+
+* `.` → Volume up
+* `,` → Volume down
+
+---
+
+#### 🔁 Modes
+
+* `z` → Toggle repeat
+* `x` → Toggle random (shuffle)
+* `c` → Toggle consume
+* `v` → Toggle single
+
+---
+
+#### 🧭 Navigation
+
+* `Tab` → Next tab
+* `Shift + Tab` → Previous tab
+
+---
+
+#### 🧠 App Controls
+
+* `q` → Quit
+* `?` → Show help
+* `:` → Command mode
+
+---
+
+### 📺 YouTube Integration
+
+* `S` → Search and play YouTube videos
+* `V` → Open video for current song
+
+> Powered by custom scripts using `yt-dlp` + `mpv`
+
+---
+
+### 💾 MPV Keybindings
+
+#### 🎧 Download current song
+
+* `Shift + S` → Download current playing media
+
+📂 Saved to:
+
+```
+~/Music/rmpc
+```
+
+> Uses custom `save_youtube.sh` script integrated with mpv
+
+---
+
+## ⚙️ Config Location
+
+After installation:
+
+```
+~/.config/rmpv/config
+```
+
+Example:
+
+```
+MUSIC_DIR=~/Music
+MPD_SOCKET=~/.config/mpd/socket
+```
+
+---
+
+---
 ## 🧪 Troubleshooting
 
 ### mpv slow YouTube loading
@@ -169,6 +259,7 @@ mpd --no-daemon
 
 # Install songs
 [Google Drive - Music](https://drive.google.com/drive/folders/19Yjdsd1q0D70O4Ye-Bi3FNZEF0IJCz4q?usp=drive_link)
+
 [Google Drive - Video](https://drive.google.com/drive/folders/11GDfocqTXpVkRuWPMZt4K6jz_NsIeCkh?usp=drive_link)
 
 ### Keybinds
@@ -181,3 +272,7 @@ mpd --no-daemon
 
 Repo:
 [https://github.com/Trifalic](https://github.com/Trifalic47/rmpv)
+
+
+
+
