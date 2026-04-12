@@ -19,3 +19,8 @@ line install (recommended)
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Trifalic47/rmpv/main/install.sh | bash
+```
+
+---
+
+Made by Trifalic47
