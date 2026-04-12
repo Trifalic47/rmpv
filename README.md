@@ -172,4 +172,4 @@ mpd --no-daemon
 * GitHub: [@Trifalic47](https://github.com/Trifalic47)
 
 Repo:
-[https://github.com/Tri](https://github.com/Tri)
+[https://github.com/Tri](https://github.com/Trifalic47/rmpv)
