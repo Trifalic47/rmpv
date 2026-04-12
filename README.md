@@ -14,7 +14,7 @@ A minimal MPD + MPV + YouTube bridge for Linux.
 git clone https://github.com/YOURNAME/rmpv
 cd rmpv
 bash scripts/install.sh
-
+```
 line install (recommended)
 
 ```bash
