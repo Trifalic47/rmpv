@@ -14,7 +14,7 @@ echo "[i] Repo: $REPO"
 echo "[+] Installing dependencies..."
 
 sudo pacman -S --needed --noconfirm \
-    mpd mpv rofi yt-dlp mpc rmpc
+    mpd mpv rofi yt-dlp mpc
 
 sudo pacman -S --needed wildmidi timidity++ >/dev/null 2>&1 || true
 
@@ -88,3 +88,4 @@ echo "Run:"
 echo "  rmpv open"
 echo "  rmpc search"
 echo "  rmpv play <url>"
+echo "If you havent installed rmpc yet so install using - sudo pacman -S rmpc"
