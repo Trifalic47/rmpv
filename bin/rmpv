@@ -190,5 +190,6 @@ case "$CMD" in
     echo "  rmpv open"
     echo "  rmpv search <query>"
     echo "  rmpv play <url|file>"
+    echo "If you havent installed rmpc so install using - sudo pacman -S rmpc"
     ;;
 esac
