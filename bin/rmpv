@@ -112,51 +112,83 @@
 # esac
 #
 
-
+#
+# #!/bin/bash
+# set -euo pipefail
+#
+# # ─────────────────────────────
+# # CHECK DEPENDENCIES
+# # ─────────────────────────────
+# for cmd in mpd mpc rmpc; do
+#     if ! command -v "$cmd" >/dev/null 2>&1; then
+#         echo "[!] Missing dependency: $cmd"
+#         exit 1
+#     fi
+# done
+#
+# # ─────────────────────────────
+# # MPD CHECK
+# # ─────────────────────────────
+# mpd_running() {
+#     pgrep mpd >/dev/null 2>&1
+# }
+#
+# start_mpd() {
+#     echo "[+] Starting MPD..."
+#     mpd >/dev/null 2>&1 &
+#     sleep 1
+# }
+#
+# repair_mpd() {
+#     echo "[!] Repairing MPD..."
+#     pkill -9 mpd >/dev/null 2>&1 || true
+#     rm -f "$HOME/.local/share/mpd/database" 2>/dev/null || true
+#     start_mpd
+# }
+#
+# # ensure mpd
+# if ! mpd_running; then
+#     start_mpd
+# fi
+#
+# # final safety check
+# if ! pgrep mpd >/dev/null 2>&1; then
+#     repair_mpd
+# fi
+#
+# # ─────────────────────────────
+# # OPEN TUI (ONLY GOAL)
+# # ─────────────────────────────
+# exec rmpc
+#
 #!/bin/bash
 set -euo pipefail
 
-# ─────────────────────────────
-# CHECK DEPENDENCIES
-# ─────────────────────────────
-for cmd in mpd mpc rmpc; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        echo "[!] Missing dependency: $cmd"
-        exit 1
-    fi
-done
+CMD="${1:-}"
 
-# ─────────────────────────────
-# MPD CHECK
-# ─────────────────────────────
-mpd_running() {
-    pgrep mpd >/dev/null 2>&1
-}
+case "$CMD" in
 
-start_mpd() {
-    echo "[+] Starting MPD..."
-    mpd >/dev/null 2>&1 &
+  open)
+    pkill mpd >/dev/null 2>&1 || true
+    mpd ~/.config/mpd/mpd.conf >/dev/null 2>&1 &
     sleep 1
-}
+    rmpc
+    ;;
 
-repair_mpd() {
-    echo "[!] Repairing MPD..."
-    pkill -9 mpd >/dev/null 2>&1 || true
-    rm -f "$HOME/.local/share/mpd/database" 2>/dev/null || true
-    start_mpd
-}
+  search)
+    shift
+    rmpv-search "$@"
+    ;;
 
-# ensure mpd
-if ! mpd_running; then
-    start_mpd
-fi
+  play)
+    shift
+    rmpv-play "$@"
+    ;;
 
-# final safety check
-if ! pgrep mpd >/dev/null 2>&1; then
-    repair_mpd
-fi
-
-# ─────────────────────────────
-# OPEN TUI (ONLY GOAL)
-# ─────────────────────────────
-exec rmpc
+  *)
+    echo "Usage:"
+    echo "  rmpv open"
+    echo "  rmpv search <query>"
+    echo "  rmpv play <url|file>"
+    ;;
+esac

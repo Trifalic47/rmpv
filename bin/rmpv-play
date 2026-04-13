@@ -1,23 +1,38 @@
+# #!/bin/bash
+#
+# source "$HOME/.config/rmpv/config"
+#
+# INPUT="$*"
+#
+# URL=$(echo "$INPUT" | grep -oE 'https?://[^ ]+' | head -n1)
+#
+# if [[ -n "$URL" ]]; then
+#     exec mpv --no-terminal --ytdl-format="best[height<=720]" "$URL"
+# fi
+#
+# FILE=$(mpc --host="$MPD_SOCKET" current -f "%file%")
+#
+# [[ -z "$FILE" ]] && FILE="$INPUT"
+#
+# FULL_PATH="$MUSIC_DIR/$FILE"
+#
+# if [[ -f "$FULL_PATH" ]]; then
+#     exec mpv "$FULL_PATH"
+# fi
+#
+# exec mpv "$INPUT"
+#
+
 #!/bin/bash
+set -euo pipefail
 
-source "$HOME/.config/rmpv/config"
+INPUT="${1:-}"
 
-INPUT="$*"
-
-URL=$(echo "$INPUT" | grep -oE 'https?://[^ ]+' | head -n1)
-
-if [[ -n "$URL" ]]; then
-    exec mpv --no-terminal --ytdl-format="best[height<=720]" "$URL"
+if [ -z "$INPUT" ]; then
+    echo "Usage: rmpv play <url|file>"
+    exit 1
 fi
 
-FILE=$(mpc --host="$MPD_SOCKET" current -f "%file%")
-
-[[ -z "$FILE" ]] && FILE="$INPUT"
-
-FULL_PATH="$MUSIC_DIR/$FILE"
-
-if [[ -f "$FULL_PATH" ]]; then
-    exec mpv "$FULL_PATH"
-fi
-
-exec mpv "$INPUT"
+mpc clear
+mpc add "$INPUT"
+mpc play
