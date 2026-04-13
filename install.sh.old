@@ -9,116 +9,103 @@ USER_HOME="$HOME"
 echo "[i] Repo: $REPO"
 
 # ─────────────────────────────
-# CHECK REQUIRED FILES
-# ─────────────────────────────
-echo "[+] Checking repo files..."
-
-for f in rmpv rmpv-play rmpv-search; do
-    if [[ ! -f "$REPO/bin/$f" ]]; then
-        echo "[!] Missing: $f"
-        exit 1
-    fi
-done
-
-# ─────────────────────────────
 # SYSTEM DEPENDENCIES
 # ─────────────────────────────
-echo "[+] Installing system dependencies..."
+echo "[+] Installing dependencies..."
 
-PACMAN_DEPS=(
-    mpd
-    mpv
-    rofi
-    yt-dlp
-    mpc
-    rmpc
-)
+sudo pacman -S --needed --noconfirm \
+    mpd mpv rofi yt-dlp mpc rmpc
 
-sudo pacman -S --needed --noconfirm "${PACMAN_DEPS[@]}"
-
-# optional safe deps
+# optional
 sudo pacman -S --needed wildmidi timidity++ >/dev/null 2>&1 || true
 
 # ─────────────────────────────
-# CLEAN MPD STATE
+# STOP OLD MPD (IMPORTANT)
 # ─────────────────────────────
-echo "[+] Resetting MPD..."
+echo "[+] Stopping old MPD..."
 
 pkill -9 mpd >/dev/null 2>&1 || true
 systemctl --user stop mpd >/dev/null 2>&1 || true
 systemctl --user stop mpd.socket >/dev/null 2>&1 || true
 
-rm -rf "$USER_HOME/.local/share/mpd"
-rm -rf "$USER_HOME/.cache/mpd"
+# ─────────────────────────────
+# CREATE MPD DIRECTORY STRUCTURE
+# ─────────────────────────────
+echo "[+] Setting up MPD directories..."
 
+mkdir -p "$USER_HOME/.config/mpd"
+mkdir -p "$USER_HOME/.config/mpd/playlists"
 mkdir -p "$USER_HOME/.local/share/mpd"
 mkdir -p "$USER_HOME/.cache/mpd"
-mkdir -p "$USER_HOME/.config/mpd/playlists"
+
+touch "$USER_HOME/.local/share/mpd/database"
 
 # ─────────────────────────────
-# INSTALL BINARIES (ONLY YOUR TOOLS)
+# GENERATE MPD CONFIG (FULL AUTO FIXED)
 # ─────────────────────────────
-echo "[+] Installing rmpv binaries..."
+echo "[+] Writing MPD config..."
 
-sudo install -Dm755 "$REPO/bin/rmpv" /usr/local/bin/rmpv
-sudo install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
-sudo install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
-
-echo "[✓] Installed rmpv tools"
-
-# ─────────────────────────────
-# CONFIG INSTALL
-# ─────────────────────────────
-echo "[+] Installing configs..."
-
-mkdir -p "$USER_HOME/.config"
-
-cp -r "$REPO/dots/mpd"  "$USER_HOME/.config/mpd"
-cp -r "$REPO/dots/mpv"  "$USER_HOME/.config/mpv"
-cp -r "$REPO/dots/rmpc" "$USER_HOME/.config/rmpc"
-
-# ─────────────────────────────
-# SAFE MPD CONFIG
-# ─────────────────────────────
 cat > "$USER_HOME/.config/mpd/mpd.conf" <<EOF
 music_directory     "$USER_HOME/Music"
 
-db_file            "$USER_HOME/.local/share/mpd/database"
-playlist_directory "$USER_HOME/.config/mpd/playlists"
-log_file           "$USER_HOME/.local/share/mpd/log"
-pid_file           "$USER_HOME/.local/share/mpd/pid"
-state_file         "$USER_HOME/.local/share/mpd/state"
+db_file             "$USER_HOME/.local/share/mpd/database"
+playlist_directory  "$USER_HOME/.config/mpd/playlists"
+log_file            "$USER_HOME/.local/share/mpd/log"
+pid_file            "$USER_HOME/.local/share/mpd/pid"
+state_file          "$USER_HOME/.local/share/mpd/state"
 
-auto_update        "yes"
+auto_update         "yes"
+auto_update_depth   "3"
 
-bind_to_address    "127.0.0.1"
-port               "6600"
+bind_to_address     "127.0.0.1"
+port                "6600"
 
 audio_output {
     type "pipewire"
     name "PipeWire"
 }
+
+restore_paused "yes"
 EOF
 
 # ─────────────────────────────
-# START MPD
+# INSTALL YOUR BINARIES
+# ─────────────────────────────
+echo "[+] Installing rmpv tools..."
+
+sudo install -Dm755 "$REPO/bin/rmpv" /usr/local/bin/rmpv
+sudo install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
+sudo install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
+
+# ─────────────────────────────
+# START MPD WITH CORRECT CONFIG
 # ─────────────────────────────
 echo "[+] Starting MPD..."
 
-mpd >/dev/null 2>&1 || true
-sleep 1
+mpd --no-daemon --config "$USER_HOME/.config/mpd/mpd.conf" >/dev/null 2>&1 &
+
+sleep 2
+
+# ensure running
+if ! pgrep mpd >/dev/null; then
+    echo "[!] MPD failed to start"
+    exit 1
+fi
+
+echo "[✓] MPD running"
+
 mpc update >/dev/null 2>&1 || true
 
 # ─────────────────────────────
-# VERIFY INSTALL
+# FINAL CHECK
 # ─────────────────────────────
-echo "[+] Verifying..."
+echo "[+] Verifying installation..."
 
 for cmd in mpd mpv rofi yt-dlp mpc rmpc; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
+    command -v "$cmd" >/dev/null || {
         echo "[!] Missing: $cmd"
         exit 1
-    fi
+    }
 done
 
 echo ""
