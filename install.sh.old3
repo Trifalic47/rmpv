@@ -1,24 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "== rmpv installer =="
+echo "== rmpv full installer =="
 
-REPO="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 USER_HOME="$HOME"
-
-echo "[i] Repo: $REPO"
-
-# ─────────────────────────────
-# CHECK REQUIRED FILES
-# ─────────────────────────────
-echo "[+] Checking repo files..."
-
-for f in rmpv rmpv-play rmpv-search; do
-    if [[ ! -f "$REPO/bin/$f" ]]; then
-        echo "[!] Missing: $f"
-        exit 1
-    fi
-done
 
 # ─────────────────────────────
 # SYSTEM DEPENDENCIES
@@ -31,12 +17,11 @@ PACMAN_DEPS=(
     rofi
     yt-dlp
     mpc
-    rmpc
 )
 
 sudo pacman -S --needed --noconfirm "${PACMAN_DEPS[@]}"
 
-# optional safe deps
+# optional (safe fail)
 sudo pacman -S --needed wildmidi timidity++ >/dev/null 2>&1 || true
 
 # ─────────────────────────────
@@ -56,7 +41,7 @@ mkdir -p "$USER_HOME/.cache/mpd"
 mkdir -p "$USER_HOME/.config/mpd/playlists"
 
 # ─────────────────────────────
-# INSTALL BINARIES (ONLY YOUR TOOLS)
+# INSTALL BINARIES (YOUR TOOL)
 # ─────────────────────────────
 echo "[+] Installing rmpv binaries..."
 
@@ -64,21 +49,27 @@ sudo install -Dm755 "$REPO/bin/rmpv" /usr/local/bin/rmpv
 sudo install -Dm755 "$REPO/bin/rmpv-play" /usr/local/bin/rmpv-play
 sudo install -Dm755 "$REPO/bin/rmpv-search" /usr/local/bin/rmpv-search
 
-echo "[✓] Installed rmpv tools"
-
 # ─────────────────────────────
-# CONFIG INSTALL
+# INSTALL CONFIGS
 # ─────────────────────────────
 echo "[+] Installing configs..."
 
 mkdir -p "$USER_HOME/.config"
 
-cp -r "$REPO/dots/mpd"  "$USER_HOME/.config/mpd"
-cp -r "$REPO/dots/mpv"  "$USER_HOME/.config/mpv"
-cp -r "$REPO/dots/rmpc" "$USER_HOME/.config/rmpc"
+# MPD config
+mkdir -p "$USER_HOME/.config/mpd"
+cp -r "$REPO/dots/mpd/"* "$USER_HOME/.config/mpd/"
+
+# MPV config
+mkdir -p "$USER_HOME/.config/mpv"
+cp -r "$REPO/dots/mpv/"* "$USER_HOME/.config/mpv/"
+
+# RMPC config
+mkdir -p "$USER_HOME/.config/rmpc"
+cp -r "$REPO/dots/rmpc/"* "$USER_HOME/.config/rmpc/"
 
 # ─────────────────────────────
-# SAFE MPD CONFIG
+# FIX MPD CONFIG SAFETY (IMPORTANT)
 # ─────────────────────────────
 cat > "$USER_HOME/.config/mpd/mpd.conf" <<EOF
 music_directory     "$USER_HOME/Music"
@@ -101,7 +92,7 @@ audio_output {
 EOF
 
 # ─────────────────────────────
-# START MPD
+# START MPD CLEAN
 # ─────────────────────────────
 echo "[+] Starting MPD..."
 
@@ -114,17 +105,17 @@ mpc update >/dev/null 2>&1 || true
 # ─────────────────────────────
 echo "[+] Verifying..."
 
-for cmd in mpd mpv rofi yt-dlp mpc rmpc; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
+for cmd in mpd mpv rofi yt-dlp mpc; do
+    command -v "$cmd" >/dev/null || {
         echo "[!] Missing: $cmd"
         exit 1
-    fi
+    }
 done
 
 echo ""
 echo "[✓] rmpv installation complete"
 echo ""
 echo "Run:"
-echo "  rmpv open"
+echo "  rmpv"
 echo "  rmpc"
 echo "  rmpv play <url>"

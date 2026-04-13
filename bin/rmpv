@@ -1,16 +1,162 @@
-#!/bin/bash
+# #!/bin/bash
+# set -euo pipefail
+#
+# echo "== rmpv runtime check =="
+#
+# # ─────────────────────────────
+# # config load
+# # ─────────────────────────────
+# CONFIG="$HOME/.config/rmpv/config"
+#
+# if [[ ! -f "$CONFIG" ]]; then
+#     echo "[!] rmpv not installed properly (missing config)"
+#     exit 1
+# fi
+#
+# source "$CONFIG"
+#
+# # ─────────────────────────────
+# # dependency check
+# # ─────────────────────────────
+# for cmd in mpd mpc mpv yt-dlp rofi; do
+#     if ! command -v "$cmd" >/dev/null 2>&1; then
+#         echo "[!] Missing dependency: $cmd"
+#         exit 1
+#     fi
+# done
+#
+# # ─────────────────────────────
+# # check MPD running
+# # ─────────────────────────────
+# is_mpd_running() {
+#     pgrep mpd >/dev/null 2>&1
+# }
+#
+# start_mpd() {
+#     echo "[+] Starting MPD..."
+#     mpd >/dev/null 2>&1 &
+#     sleep 1
+# }
+#
+# # ─────────────────────────────
+# # check port
+# # ─────────────────────────────
+# check_mpd_port() {
+#     ss -ltnp 2>/dev/null | grep -q 6600
+# }
+#
+# # ─────────────────────────────
+# # repair MPD
+# # ─────────────────────────────
+# repair_mpd() {
+#     echo "[!] Repairing MPD state..."
+#
+#     pkill -9 mpd >/dev/null 2>&1 || true
+#     systemctl --user stop mpd >/dev/null 2>&1 || true
+#
+#     rm -f "$HOME/.local/share/mpd/database"
+#
+#     start_mpd
+# }
+#
+# # ─────────────────────────────
+# # ensure MPD is alive
+# # ─────────────────────────────
+# if ! is_mpd_running; then
+#     echo "[!] MPD not running"
+#     start_mpd
+# fi
+#
+# # double-check
+# if ! check_mpd_port; then
+#     echo "[!] MPD port not ready"
+#     repair_mpd
+# fi
+#
+# # final validation
+# if ! check_mpd_port; then
+#     echo "[✗] MPD failed to start"
+#     exit 1
+# fi
+#
+# echo "[✓] MPD is healthy"
+#
+# # ─────────────────────────────
+# # MAIN ACTION
+# # ─────────────────────────────
+# echo "[+] rmpv ready"
+#
+# # Example behavior (you can expand this)
+# echo "Choose:"
+# echo "1) play"
+# echo "2) search"
+# echo "3) open music dir"
+#
+# read -rp "> " choice
+#
+# case "$choice" in
+#     1)
+#         read -rp "URL/File: " input
+#         mpv "$input"
+#         ;;
+#     2)
+#         read -rp "Search: " q
+#         yt-dlp "ytsearch:$q" --get-url | head -n 1 | xargs mpv
+#         ;;
+#     3)
+#         rmpc
+#         ;;
+#     *)
+#         echo "invalid"
+#         ;;
+# esac
+#
 
-case "$1" in
-    play)
-        rmpv-play "${@:2}"
-        ;;
-    search)
-        rmpv-search "${@:2}"
-        ;;
-    open)
-        rmpc
-        ;;
-    *)
-        echo "Usage: rmpv play|search|open"
-        ;;
-esac
+
+#!/bin/bash
+set -euo pipefail
+
+# ─────────────────────────────
+# CHECK DEPENDENCIES
+# ─────────────────────────────
+for cmd in mpd mpc rmpc; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "[!] Missing dependency: $cmd"
+        exit 1
+    fi
+done
+
+# ─────────────────────────────
+# MPD CHECK
+# ─────────────────────────────
+mpd_running() {
+    pgrep mpd >/dev/null 2>&1
+}
+
+start_mpd() {
+    echo "[+] Starting MPD..."
+    mpd >/dev/null 2>&1 &
+    sleep 1
+}
+
+repair_mpd() {
+    echo "[!] Repairing MPD..."
+    pkill -9 mpd >/dev/null 2>&1 || true
+    rm -f "$HOME/.local/share/mpd/database" 2>/dev/null || true
+    start_mpd
+}
+
+# ensure mpd
+if ! mpd_running; then
+    start_mpd
+fi
+
+# final safety check
+if ! pgrep mpd >/dev/null 2>&1; then
+    repair_mpd
+fi
+
+# ─────────────────────────────
+# OPEN TUI (ONLY GOAL)
+# ─────────────────────────────
+exec rmpc

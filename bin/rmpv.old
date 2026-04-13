@@ -1,0 +1,16 @@
+#!/bin/bash
+
+case "$1" in
+    play)
+        rmpv-play "${@:2}"
+        ;;
+    search)
+        rmpv-search "${@:2}"
+        ;;
+    open)
+        rmpc
+        ;;
+    *)
+        echo "Usage: rmpv play|search|open"
+        ;;
+esac
