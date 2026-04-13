@@ -1,46 +1,5 @@
-# #!/bin/bash
-#
-# QUERY="$*"
-#
-# exec ~/.config/rmpc/search_yt.sh "$QUERY"
-
-# #!/bin/bash
-#
-# QUERY="$(rofi -dmenu -p "Search YouTube:")"
-#
-# [ -z "$QUERY" ] && exit 0
-#
-# URL="$(yt-dlp "ytsearch1:$QUERY" --get-id)"
-#
-# if [ -z "$URL" ]; then
-#     echo "No result found"
-#     exit 1
-# fi
-#
-# mpc clear
-# mpc add "https://www.youtube.com/watch?v=$URL"
-# mpc play
-
-
 #!/bin/bash
 set -euo pipefail
 
-QUERY="${*:-}"
-
-if [ -z "$QUERY" ]; then
-    QUERY=$(rofi -dmenu -p "Search YouTube:")
-fi
-
-[ -z "$QUERY" ] && exit 0
-
-CHOICE=$(yt-dlp "ytsearch5:$QUERY" \
-    --print "%(title)s|%(id)s" | \
-    rofi -dmenu -p "Select Video")
-
-[ -z "$CHOICE" ] && exit 0
-
-ID=$(echo "$CHOICE" | cut -d'|' -f2)
-
-mpc clear
-mpc add "https://www.youtube.com/watch?v=$ID"
-mpc play
+# just delegate to rmpc script (THIS IS CORRECT)
+exec ~/.config/rmpc/search_yt.sh "$@"
