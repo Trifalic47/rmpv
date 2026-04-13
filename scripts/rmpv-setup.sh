@@ -1,60 +1,48 @@
-# #!/bin/bash
-# set -euo pipefail
-#
-# echo "== rmpv setup =="
-#
-# CONFIG_DIR="$HOME/.config"
-# SHARE_DIR="/usr/share/rmpv/dots"
-#
-# # ── copy dotfiles ──────────────────────────────────────
-# echo "[+] Installing configs..."
-# rm -rf "$CONFIG_DIR/mpv"
-# rm -rf "$CONFIG_DIR/rmpc"
-# cp -r "$SHARE_DIR/mpv"  "$CONFIG_DIR/mpv"
-# cp -r "$SHARE_DIR/rmpc" "$CONFIG_DIR/rmpc"
-# echo "[+] mpv  → $CONFIG_DIR/mpv"
-# echo "[+] rmpc → $CONFIG_DIR/rmpc"
-#
-# # ── user config ────────────────────────────────────────
-# read -rp "Music directory (default ~/Music): " MUSIC_DIR
-# MUSIC_DIR="${MUSIC_DIR:-$HOME/Music}"
-#
-# read -rp "MPD socket (default ~/.config/mpd/socket): " MPD_SOCKET
-# MPD_SOCKET="${MPD_SOCKET:-$HOME/.config/mpd/socket}"
-#
-# mkdir -p "$HOME/.config/rmpv"
-# cat > "$HOME/.config/rmpv/config" <<EOF
-# MUSIC_DIR=$MUSIC_DIR
-# MPD_SOCKET=$MPD_SOCKET
-# EOF
-#
-# echo "[✓] Config saved → $HOME/.config/rmpv/config"
-# echo ""
-# echo "Done! Run: rmpv open"
-
 #!/bin/bash
 
-# Define where the system stored the templates
-TEMPLATE_DIR="/usr/share/rmpv/dots"
+# 1. Function to check and install rmpc
 
-echo "[+] Setting up configurations..."
-
-# Create user config dir if it doesn't exist
-mkdir -p "$HOME/.config"
-
-# Copy from the GLOBAL directory to the USER directory
-if [ -d "$TEMPLATE_DIR" ]; then
-    cp -r "$TEMPLATE_DIR/mpd"  "$HOME/.config/"
-    cp -r "$TEMPLATE_DIR/mpv"  "$HOME/.config/"
-    cp -r "$TEMPLATE_DIR/rmpc" "$HOME/.config/"
-    echo "[✓] Dotfiles copied to ~/.config/"
+# Smarter helper check
+AUR_HELPER=$(command -v yay || command -v paru)
+if [ -z "$AUR_HELPER" ]; then
+    echo "[!] No AUR helper (yay/paru) found. Please install rmpc manually."
 else
-    echo "[!] Error: Templates not found in $TEMPLATE_DIR"
-    exit 1
+    $AUR_HELPER -S rmpc
 fi
 
-# Run the rest of your MPD logic (mkdir playlists, etc.)
-mkdir -p "$HOME/.config/mpd/playlists"
-touch "$HOME/.config/mpd/database"
+check_rmpc() {
+    if ! command -v rmpc &> /dev/null; then
+        echo "[!] rmpc is not installed."
+        read -p "[?] Would you like to install rmpc now using yay? (y/N): " choice
+        case "$choice" in
+          y|Y )
+            echo "[+] Installing rmpc..."
+            yay -S rmpc --noconfirm || echo "[!] Failed to install rmpc. Please install it manually."
+            ;;
+          * )
+            echo "[i] Skipping rmpc installation. Some features may not work."
+            ;;
+        esac
+    else
+        echo "[✓] rmpc is already installed."
+    fi
+}
 
-echo "[✓] Setup complete. You can now run 'rmpv open'"
+# 2. Main Setup Logic
+echo "== rmpv Setup Helper =="
+
+# Run the dependency check
+check_rmpc
+
+# 3. Rest of your config copying logic
+TEMPLATE_DIR="/usr/share/rmpv/dots"
+echo "[+] Copying configurations..."
+
+mkdir -p "$HOME/.config"
+cp -r "$TEMPLATE_DIR/mpd"  "$HOME/.config/"
+cp -r "$TEMPLATE_DIR/mpv"  "$HOME/.config/"
+cp -r "$TEMPLATE_DIR/rmpc" "$HOME/.config/"
+
+# 4. MPD Runtime Setup
+mkdir -p "$HOME/.config/mpd/playlists"
+# ... rest of your script ...
