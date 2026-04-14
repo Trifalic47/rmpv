@@ -3,6 +3,7 @@
 
 A lightweight terminal-based music + video controller using **mpv + yt-dlp + mpc + rmpc**
 Built for fast media playback, YouTube streaming, and CLI control.
+It could also play **local** as well as **youtube** songs
 
 ---
 
